@@ -29,6 +29,18 @@ on:
       COMMON_PATH:
         description: 'COMMON_PATH (if no common tree, leave blank)'
         required: false
+      KERNEL_URL:
+        description: 'KERNEL_URL (if no kernel src/prebuilt)'
+        required: false
+        default: 'https://github.com/lineageos/android_kernel_xiaomi_mt6785'
+      KERNEL_BRANCH:
+        description: 'KERNEL_BRANCH (if no kernel src/prebuilt, leave blank)'
+        required: false
+        default: 'lineage-23.0'
+      KERNEL_PATH:
+        description: 'KERNEL_PATH (if no kernel src/prebuilt, leave blank)'
+        required: false
+        default: 'kernel/xiaomi/mt6785'
       DEVICE_NAME:
         description: 'DEVICE_NAME'
         required: true
@@ -91,9 +103,18 @@ jobs:
         && github.event.inputs.COMMON_PATH != null
       run: |
         cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
-        git clone ${{ github.event.inputs.COMMON_TREE_URL }} -b lineage-23.0 ./${{ github.event.inputs.COMMON_PATH }}
+        git clone ${{ github.event.inputs.COMMON_TREE_URL }} -b ${{ github.event.inputs.DEVICE_TREE_BRANCH }} ./${{ github.event.inputs.COMMON_PATH }}
       working-directory: ${{ steps.pwd.outputs.workspace-folder }}
-
+      
+    - name: Clone kernel source
+      if: |
+        github.event.inputs.COMMON_TREE_URL != null
+        && github.event.inputs.COMMON_PATH != null
+      run: |
+        cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
+        git clone ${{ github.event.inputs.COMMON_TREE_URL }} -b ${{ github.event.inputs.KERNEL_BRANCH }} ./${{ github.event.inputs.KERNEL_PATH }}
+      working-directory: ${{ steps.pwd.outputs.workspace-folder }}
+      
     - name: Building recovery
       run: |
         cd ${{ steps.pwd.outputs.workspace-folder }}/fox_${{ github.event.inputs.MANIFEST_BRANCH }}
